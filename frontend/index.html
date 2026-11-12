@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>AI Wardrobe Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+  <!-- Splash Screen -->
+  <div id="splash-screen" class="splash-screen">
+    <div class="splash-content">
+      <div class="logo-mark">A|W</div>
+      <h1 class="brand-title">AI WARDROBE</h1>
+      <p class="brand-subtitle">HAUTE INTELLIGENCE</p>
+      <div class="loader-spinner"></div>
+    </div>
+  </div>
+
+  <!-- Google-Only Auth Modal -->
+  <div id="auth-modal" class="modal-overlay active">
+    <div class="auth-card">
+      <div class="brand-header">
+        <h2 class="serif">AI Wardrobe</h2>
+        <p class="auth-sub">Haute couture styling powered by Gemini</p>
+      </div>
+
+      <div class="google-auth-box">
+        <p class="google-hint">Sign in with your Google account to access your private wardrobe.</p>
+        <button id="google-signin-btn" class="btn-google" onclick="handleGoogleSignIn()">
+          <svg class="google-icon" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+      </div>
+
+      <div class="auth-actions">
+        <button class="btn-demo" onclick="enableDemoMode()">Or Test Offline Demo Mode</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Shell -->
+  <div id="app-container" class="app-container">
+    <header class="app-header">
+      <div class="header-left">
+        <h1 class="logo-title">WARDROBE</h1>
+        <span id="collection-badge" class="badge">Women</span>
+      </div>
+      <div class="header-right">
+        <div id="weather-widget" class="weather-pill">
+          <span id="weather-temp">--°C</span>
+          <span id="weather-icon">☀️</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-content">
+      <!-- 1. Wardrobe View -->
+      <section id="view-wardrobe" class="app-view active">
+        <div class="view-header">
+          <div>
+            <h2 class="serif section-title">My Collection</h2>
+            <p class="subtitle"><span id="wardrobe-count">0</span> garments catalogued</p>
+          </div>
+          <button class="btn-accent-round" onclick="openUploadModal()">+ Add Clothes</button>
+        </div>
+        <div class="filter-bar">
+          <div class="category-scroll" id="category-pills"></div>
+        </div>
+        <div class="wardrobe-grid" id="wardrobe-items-container"></div>
+      </section>
+
+      <!-- 2. Stylist View -->
+      <section id="view-stylist" class="app-view">
+        <div class="view-header">
+          <div>
+            <h2 class="serif section-title">Daily AI Stylist</h2>
+            <p class="subtitle">Curated strictly from your garments</p>
+          </div>
+        </div>
+        <div class="stylist-input-card">
+          <div class="input-group">
+            <label>Today's Occasion</label>
+            <select id="stylist-occasion">
+              <option value="Daily wear">Daily wear</option>
+              <option value="College">College</option>
+              <option value="Office">Office / Formal</option>
+              <option value="Party">Party</option>
+              <option value="Wedding">Wedding / Traditional</option>
+              <option value="Festival">Festival</option>
+              <option value="Travel">Travel</option>
+              <option value="Casual outing">Casual Outing</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="generateDailyOutfit()">Generate Outfit</button>
+        </div>
+        <div id="ai-outfit-result" class="outfit-display-card hidden">
+          <span id="ai-engine-tag" class="tag-gemini">✨ Gemini Intelligence</span>
+          <h3 id="ai-outfit-title" class="serif outfit-name">Curated Look</h3>
+          <div class="curated-items-row" id="ai-curated-items"></div>
+          <div class="outfit-details">
+            <div class="detail-block"><strong>Harmony:</strong> <span id="ai-outfit-harmony"></span></div>
+            <div class="detail-block"><strong>Stylist Note:</strong> <span id="ai-outfit-notes"></span></div>
+            <div class="detail-block missing-tip"><strong>Missing Piece Suggestion:</strong> <span id="ai-outfit-missing"></span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Chat View -->
+      <section id="view-chat" class="app-view">
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg model">Hello! I am your personal AI Stylist. Ask me what to wear or how to pair your garments!</div>
+          </div>
+          <div class="chat-input-bar">
+            <input type="text" id="chat-input-field" placeholder="Ask your stylist..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+            <button class="btn-send" onclick="sendChatMessage()">Send</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Profile View -->
+      <section id="view-profile" class="app-view">
+        <div class="view-header"><h2 class="serif section-title">Profile</h2></div>
+        <div class="profile-card">
+          <img id="user-avatar-img" class="profile-pic" src="" style="display:none;">
+          <div class="profile-avatar" id="user-avatar-initials">U</div>
+          <h3 id="user-display-name">User</h3>
+          <p id="user-display-email">user@gmail.com</p>
+        </div>
+        <div class="settings-group">
+          <h4>Fashion Collection</h4>
+          <select id="setting-collection" onchange="updateFashionCollection(this.value)">
+            <option value="women">Women's Fashion</option>
+            <option value="men">Men's Fashion</option>
+            <option value="custom">Custom / Personal</option>
+          </select>
+        </div>
+        <button class="btn-danger full-width" onclick="handleSignOut()">Sign Out</button>
+      </section>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" onclick="switchView('wardrobe')">👗<span class="nav-label">Wardrobe</span></button>
+      <button class="nav-item" onclick="switchView('stylist')">✨<span class="nav-label">Stylist</span></button>
+      <button class="nav-item" onclick="switchView('chat')">💬<span class="nav-label">Chat</span></button>
+      <button class="nav-item" onclick="switchView('profile')">👤<span class="nav-label">Profile</span></button>
+    </nav>
+  </div>
+
+  <!-- Upload Modal -->
+  <div id="upload-modal" class="modal-overlay">
+    <div class="modal-sheet">
+      <div class="sheet-header">
+        <h3 class="serif">Add Garment</h3>
+        <button class="btn-close" onclick="closeUploadModal()">✕</button>
+      </div>
+      <div class="image-picker-zone">
+        <img id="preview-img" class="upload-preview hidden" src="">
+        <div id="picker-prompt">
+          <span>Upload Garment Photo</span>
+          <div class="source-buttons">
+            <button class="btn-secondary" onclick="document.getElementById('cam-input').click()">📷 Camera</button>
+            <button class="btn-secondary" onclick="document.getElementById('file-input').click()">📁 Gallery</button>
+          </div>
+        </div>
+        <input type="file" id="cam-input" accept="image/*" capture="environment" class="hidden" onchange="handleImageSelected(event)">
+        <input type="file" id="file-input" accept="image/*" class="hidden" onchange="handleImageSelected(event)">
+      </div>
+      <div id="ai-analyzing-spinner" class="analyzing-banner hidden"><div class="loader-spinner"></div> Categorizing garment...</div>
+      <form id="clothing-form" onsubmit="saveClothingItem(event)">
+        <div class="input-group"><label>Garment Name</label><input type="text" id="item-name" required placeholder="e.g. Navy Blue Linen Shirt"></div>
+        <div class="input-row">
+          <div class="input-group"><label>Category</label><select id="item-category" required></select></div>
+          <div class="input-group"><label>Color</label><input type="text" id="item-color" required placeholder="e.g. Navy Blue"></div>
+        </div>
+        <button type="submit" class="btn-primary full-width">Save to Wardrobe</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/firebase-config.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script src="js/matcher.js"></script>
+  <script src="js/weather.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+          </html>

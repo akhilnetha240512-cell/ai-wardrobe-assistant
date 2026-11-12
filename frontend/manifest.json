@@ -1,0 +1,8 @@
+{
+  "name": "AI Wardrobe Assistant",
+  "short_name": "WardrobeAI",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#FDFBF7",
+  "theme_color": "#1C1917"
+}
